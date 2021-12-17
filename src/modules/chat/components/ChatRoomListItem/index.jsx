@@ -20,7 +20,7 @@ const ChatRoomListItem = ({
   return (
     <button
       onClick={onClick}
-      onMouseEnter={onMouseEnter}
+      onMouseEnter={selected === _id ? onMouseEnter : undefined}
       className={classNames(
         "flex items-center justify-between p-4 space-x-2 hover:bg-gray-100 text-base w-full text-left",
         selected && "bg-gray-100"

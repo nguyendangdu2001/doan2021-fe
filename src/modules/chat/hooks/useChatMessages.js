@@ -20,6 +20,7 @@ const useChatMessages = ({ roomId, forceScroll, scroll }) => {
     if (preloadMess) {
       setMessages(preloadMess);
       forceScroll?.();
+      queryClient.removeQueries([roomId]);
     } else {
       socket.emit("getInitialMessage", { roomId }, (data) => {
         setMessages((prev) => [...prev, ...data]);

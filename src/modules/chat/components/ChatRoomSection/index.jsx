@@ -4,6 +4,7 @@ import socket from "@config/socketio";
 import { PlusIcon, SearchIcon } from "@heroicons/react/outline";
 import { useAppDispatch, useAppSelector } from "@hooks/reduxHook";
 import useChatRoom from "@modules/chat/hooks/useChatRoom";
+import usePreloadMessages from "@modules/chat/hooks/usePreloadMessages";
 import { finishPreload, startPreload } from "@modules/chat/slices";
 import React, { useEffect, useState } from "react";
 import Scrollbars from "react-custom-scrollbars";
@@ -15,25 +16,8 @@ import NoChatRoomSection from "./components/NoChatRoomSection";
 const ChatRoomSection = ({ selectedId, setSelectedId }) => {
   const [count, setConut] = useState(0);
   const { data: chatRooms } = useChatRoom();
-  const loading = useAppSelector((state) => state.chat.loading);
-  const dispatch = useAppDispatch();
-  const queryClient = useQueryClient();
-  useEffect(() => {
-    const handler = (data) => {
-      queryClient.setQueryData([data?.roomId], data?.messages);
-      dispatch(finishPreload({ roomId: data?.roomId }));
-    };
-    socket.on("initialMessage", handler);
-    return () => {
-      socket.off("initialMessage", handler);
-    };
-  }, [dispatch, queryClient]);
-  const preLoadMessages = (roomId) => {
-    if (loading?.[roomId]) return;
-    if (queryClient.getQueryData([roomId])) return;
-    dispatch(startPreload({ roomId }));
-    socket.emit("getInitialMessage", { roomId });
-  };
+
+  const { preLoadMessages } = usePreloadMessages();
   return (
     <>
       <div className="flex items-center justify-between w-full">
