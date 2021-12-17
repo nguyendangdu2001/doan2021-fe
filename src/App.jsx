@@ -6,17 +6,23 @@ import Header from "@components/Header";
 import { ScrollToTop } from "@components/ScrollToTop";
 import GetRoutes from "@routes/GetRoutes";
 import { LazyMotion } from "framer-motion";
-import React from "react";
+import React, { useEffect } from "react";
 import { ReactQueryDevtools } from "react-query/devtools";
 import { ToastContainer } from "react-toastify";
 
 import axios from "axios";
 import { useAppSelector } from "@hooks/reduxHook";
+import socket from "@config/socketio";
 
 const loadFeatures = () =>
   import("./config/framer-motion").then((res) => res.default);
 function App() {
-  axios.get("");
+  useEffect(() => {
+    // setInterval(() => socket.emit("whoami"), 1000);
+
+    return () => {};
+  }, []);
+
   const darkMode = useAppSelector((state) => state.dark.isDark);
   return (
     <div className={`${darkMode ? "dark" : ""} h-full`}>

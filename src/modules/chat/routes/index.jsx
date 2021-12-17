@@ -9,6 +9,7 @@ const chatRoutes = [
   {
     component: Home,
     path: "/",
+    isPrivate: true,
   },
   // {
   //   component: ForgetPassword,

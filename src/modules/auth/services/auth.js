@@ -4,6 +4,10 @@ export const login = (requestData) => {
   console.log(requestData);
   return axios.post("/auth/login", requestData);
 };
+export const logout = (requestData) => {
+  console.log(requestData);
+  return axios.post("/auth/logout", requestData);
+};
 export const googleLogin = (requestData) => {
   console.log(requestData);
   return axios.post("/auth/google-login", requestData);

@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authReducer from "@modules/auth/slices";
 import darkModeReducer from "@app/slices/darkMode";
-// import chatReducer from "@modules/firebase/slices";
+import chatReducer from "@modules/chat/slices";
 // import friendReducer from "@modules/firebase/slices/friend";
 import {
   persistStore,
@@ -24,11 +24,14 @@ const persistConfig = {
 const rootReducer = combineReducers({
   auth: authReducer,
   dark: darkModeReducer,
-  // chat: chatReducer,
+  chat: chatReducer,
   // friend: friendReducer,
 });
 
-const persistedReducer = persistReducer({ ...persistConfig }, rootReducer);
+const persistedReducer = persistReducer(
+  { ...persistConfig, blacklist: ["chat"] },
+  rootReducer
+);
 
 export const store = configureStore({
   reducer: persistedReducer,

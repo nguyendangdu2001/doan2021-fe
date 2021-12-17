@@ -1,7 +1,7 @@
 import { Dialog, Transition } from "@headlessui/react";
 import React, { Fragment } from "react";
 
-const CustomModal = ({ isOpen, close, children, title }) => {
+const CustomModal = ({ isOpen, close, children, title, showFooter }) => {
   return (
     <Transition appear show={isOpen} as={Fragment}>
       <Dialog
@@ -39,7 +39,7 @@ const CustomModal = ({ isOpen, close, children, title }) => {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <div className="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
+            <div className="inline-block w-full max-w-md p-6 my-8 space-y-4 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-2xl">
               {title && (
                 <Dialog.Title
                   as="h3"
@@ -49,6 +49,18 @@ const CustomModal = ({ isOpen, close, children, title }) => {
                 </Dialog.Title>
               )}
               {children}
+              {showFooter && (
+                <div className="flex items-center justify-end space-x-2">
+                  <button
+                    type="button"
+                    className="p-2 text-base font-medium text-gray-500 transition-colors rounded-md hover:text-gray-900 hover:bg-gray-100"
+                    onClick={close}
+                  >
+                    Close
+                  </button>
+                  {showFooter?.extra}
+                </div>
+              )}
             </div>
           </Transition.Child>
         </div>

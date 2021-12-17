@@ -1,12 +1,39 @@
 import IconButton from "@components/IconButton";
+import ModalSection from "@components/ModalSection";
+import socket from "@config/socketio";
 import { PlusIcon, SearchIcon } from "@heroicons/react/outline";
-import React, { useState } from "react";
+import { useAppDispatch, useAppSelector } from "@hooks/reduxHook";
+import useChatRoom from "@modules/chat/hooks/useChatRoom";
+import { finishPreload, startPreload } from "@modules/chat/slices";
+import React, { useEffect, useState } from "react";
 import Scrollbars from "react-custom-scrollbars";
+import { useQueryClient } from "react-query";
 import ChatRoomListItem from "../ChatRoomListItem";
+import NewConversationSection from "../NewConversationSection";
 import NoChatRoomSection from "./components/NoChatRoomSection";
 
-const ChatRoomSection = () => {
+const ChatRoomSection = ({ selectedId, setSelectedId }) => {
   const [count, setConut] = useState(0);
+  const { data: chatRooms } = useChatRoom();
+  const loading = useAppSelector((state) => state.chat.loading);
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    const handler = (data) => {
+      queryClient.setQueryData([data?.roomId], data?.messages);
+      dispatch(finishPreload({ roomId: data?.roomId }));
+    };
+    socket.on("initialMessage", handler);
+    return () => {
+      socket.off("initialMessage", handler);
+    };
+  }, [dispatch, queryClient]);
+  const preLoadMessages = (roomId) => {
+    if (loading?.[roomId]) return;
+    if (queryClient.getQueryData([roomId])) return;
+    dispatch(startPreload({ roomId }));
+    socket.emit("getInitialMessage", { roomId });
+  };
   return (
     <>
       <div className="flex items-center justify-between w-full">
@@ -16,16 +43,30 @@ const ChatRoomSection = () => {
             icon={<SearchIcon className="w-5 h-5" />}
             onClick={() => setConut(count + 1)}
           />
-
-          <IconButton icon={<PlusIcon className="w-5 h-5" />} />
+          <ModalSection
+            button={({ open }) => (
+              <IconButton
+                icon={<PlusIcon className="w-5 h-5" />}
+                onClick={open}
+              />
+            )}
+            section={<NewConversationSection />}
+            showFooter={true}
+          />
         </div>
       </div>
       <div className="flex-grow min-h-0 px-1 -mx-3">
-        {count === 0 && <NoChatRoomSection />}
-        {count > 0 && (
+        {chatRooms?.length === 0 && <NoChatRoomSection />}
+        {chatRooms?.length > 0 && (
           <Scrollbars style={{ width: "100%", height: "100%" }} autoHide>
-            {[...Array(count)].map(() => (
-              <ChatRoomListItem />
+            {chatRooms?.map((room) => (
+              <ChatRoomListItem
+                onMouseEnter={() => preLoadMessages(room?._id)}
+                key={room?._id}
+                {...room}
+                selected={room?._id === selectedId}
+                onClick={() => setSelectedId(room?._id)}
+              />
             ))}
           </Scrollbars>
         )}
