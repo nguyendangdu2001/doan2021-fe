@@ -1,8 +1,11 @@
+import CustomModal from "@components/CustomModal";
 import IconButton from "@components/IconButton";
 import { PaperAirplaneIcon, XIcon, PhoneIcon } from "@heroicons/react/outline";
 import { useAppSelector } from "@hooks/reduxHook";
+import useCallVideo from "@modules/chat/hooks/useCallVideo";
 import useChatMessages from "@modules/chat/hooks/useChatMessages";
-import React, { useCallback, useRef, useState } from "react";
+import useGetInfoRoom from "@modules/chat/hooks/useGetInfoRoom";
+import React, { useMemo, useCallback, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import ChatMessageList from "../ChatMessageList";
 
@@ -35,8 +38,35 @@ const ChatSection = ({ selectedId, setSelectedId }) => {
     createMessage(message);
     reset();
   };
+  const { data: roomInfo } = useGetInfoRoom(selectedId);
+  const idTo = useMemo(() => {
+    return roomInfo?.users?.find((e) => e?._id !== userId)?._id;
+  }, [roomInfo, userId]);
+  console.log(roomInfo);
+  console.log(idTo);
+  const { sendRequest, statusRing, data } = useCallVideo({
+    roomId: selectedId,
+    fromId: userId,
+    toId: idTo,
+  });
+
+  // const onHanldeAccept = () => {
+  //   window.open(
+  //     `http://localhost:3000/video-call/${data?.roomId}?from=${data?.from}&to=${userId}`
+  //   );
+  // };
+
   return (
     <div className="flex flex-col flex-grow overflow-y-hidden">
+      {/* <CustomModal
+        isOpen={statusRing}
+        title={"Nghe máy đi"}
+        close={() => {}}
+        showFooter
+      >
+        <button onClick={onHanldeAccept}>Chấp nhận</button>
+        <button>Từ chối</button>
+      </CustomModal> */}
       <div className="flex items-center w-full px-2">
         <div className="flex items-center flex-grow space-x-1">
           <div className="w-8 h-8 bg-gray-400 rounded-full"></div>
@@ -45,7 +75,10 @@ const ChatSection = ({ selectedId, setSelectedId }) => {
           </div>
         </div>
         <div className="flex space-x-1">
-          <IconButton icon={<PhoneIcon className="w-5 h-5" />} />
+          <IconButton
+            onClick={sendRequest}
+            icon={<PhoneIcon className="w-5 h-5" />}
+          />
         </div>
       </div>
       <ChatMessageList
